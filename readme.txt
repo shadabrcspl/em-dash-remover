@@ -1,44 +1,34 @@
 === Em Dash Remover ===
 Contributors: shadabrcspl, arshadfaraz
-Tags: em dash, dash, ai content, formatting, typography, text clean
-Requires at least: 5.0
+Tags: em dash, en dash, dash, ai content, typography, content cleanup
+Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.1.0
+Stable tag: 4.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Replaces AI-telltale em dashes (—, &mdash;, &#8212;, &#x2014;) with normal hyphens (-) in rendered public HTML.
+Automatically replaces em dashes (—), en dashes (–), and HTML entities with normal hyphens (-) in rendered public HTML.
 
-== Description ==
+== Features ==
+* Em dash: — & entities (e.g. &mdash;, &#8212;) → -
+* En dash: – & entities (e.g. &ndash;, &#8211;) → -
+* No database modification (100% Safe)
+* No Elementor / builder modification
+* No theme or plugin file modification
+* No URL or HTML attribute modification
+* No script, style, comment, pre, code, textarea, or SVG modification
+* Works automatically on public frontend requests
+* Includes Tools > Em Dash Remover status dashboard
 
-Modern AI writing assistants frequently use em dashes (—). This plugin replaces em dashes with normal hyphens (-) only in rendered public HTML text.
-
-* **Safe**: It does not modify the database, Elementor data, theme/plugin files, URLs, or HTML attributes.
-* **Code-Safe**: Leaves scripts, styles, code blocks (`<pre>`, `<code>`), textareas, and SVGs completely untouched.
-* **Performance**: Ultra-fast execution with early exit checks.
-
-== Installation ==
-
-1. Upload the plugin folder to the `/wp-content/plugins/` directory, or upload the `.zip` via Plugins > Add New > Upload Plugin.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Done! The plugin works automatically with zero configuration required.
-
-== Frequently Asked Questions ==
-
-= Does this modify my database? =
-No. The plugin works exclusively on the public rendered HTML output buffer. Your database, posts, and page builder data are completely untouched.
-
-= Will it break my code snippets or scripts? =
-No. Code tags (`<pre>`, `<code>`, `<kbd>`, `<samp>`, `<var>`), `<script>`, `<style>`, `<textarea>`, and `<svg>` tags are strictly protected.
+== Important ==
+This plugin changes only the final rendered HTML sent to visitors. Original WordPress database content and posts remain completely unchanged.
 
 == Changelog ==
 
-= 3.1.0 =
-* Added support for all HTML entity representations (&mdash;, &#8212;, &#x2014;).
-* Added protection for <svg>, <kbd>, <samp>, and <var> elements.
+= 4.1.0 =
+* Added support for both Em Dash (—) and En Dash (–) plus all standard HTML entities.
+* Added Tools > Em Dash Remover admin status dashboard.
+* Added single-pass protected token extraction and fast early-exit checks.
 * Added developer filter hooks (em_dash_remover_replacement, em_dash_remover_targets, em_dash_remover_enabled).
 * Added full compatibility with WordPress 6.x and PHP 8.x.
-
-= 3.0.0 =
-* Initial public release.

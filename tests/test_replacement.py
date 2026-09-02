@@ -1,91 +1,93 @@
 import unittest
 import re
 
-class TestEmDashRemover(unittest.TestCase):
+class TestEmDashRemoverV4(unittest.TestCase):
     TARGETS = [
-        '—',            # UTF-8 Literal
-        '&mdash;',      # HTML named entity lower
-        '&MDASH;',      # HTML named entity upper
-        '&#8212;',      # Decimal entity
-        '&#x2014;',     # Hex entity lower
-        '&#x02014;',    # Hex entity padded
-        '&#X2014;',     # Hex entity upper
-        '&#X02014;',    # Hex entity padded upper
+        '—',            # Em dash
+        '–',            # En dash
+        '&mdash;',
+        '&MDASH;',
+        '&ndash;',
+        '&NDASH;',
+        '&#8212;',      # Em dash decimal
+        '&#8211;',      # En dash decimal
+        '&#x2014;',     # Em dash hex
+        '&#x02014;',
+        '&#X2014;',
+        '&#X02014;',
+        '&#x2013;',     # En dash hex
+        '&#x02013;',
+        '&#X2013;',
+        '&#X02013;',
     ]
     REPLACEMENT = '-'
-    SPLIT_PATTERN = r'(<!--.*?-->|<script\b[^>]*>.*?<\/script\s*>|<style\b[^>]*>.*?<\/style\s*>|<pre\b[^>]*>.*?<\/pre\s*>|<code\b[^>]*>.*?<\/code\s*>|<textarea\b[^>]*>.*?<\/textarea\s*>|<svg\b[^>]*>.*?<\/svg\s*>|<kbd\b[^>]*>.*?<\/kbd\s*>|<samp\b[^>]*>.*?<\/samp\s*>|<var\b[^>]*>.*?<\/var\s*>|<[^>]+>)'
+    PATTERN = r'(<!--.*?-->|<script\b[^>]*>.*?<\/script\s*>|<style\b[^>]*>.*?<\/style\s*>|<pre\b[^>]*>.*?<\/pre\s*>|<code\b[^>]*>.*?<\/code\s*>|<textarea\b[^>]*>.*?<\/textarea\s*>|<svg\b[^>]*>.*?<\/svg\s*>|<kbd\b[^>]*>.*?<\/kbd\s*>|<samp\b[^>]*>.*?<\/samp\s*>|<var\b[^>]*>.*?<\/var\s*>|<[^>]+>)'
 
-    def replace_rendered_text(self, html, targets=None, replacement=None):
+    def process_html(self, html):
         if not html or not isinstance(html, str):
             return html
-        
-        if targets is None:
-            targets = self.TARGETS
-        if replacement is None:
-            replacement = self.REPLACEMENT
 
-        found = any(t in html for t in targets)
-        if not found:
+        if "<html" not in html.lower() and "<!doctype html" not in html.lower():
             return html
 
-        parts = re.split(self.SPLIT_PATTERN, html, flags=re.IGNORECASE | re.DOTALL)
-        if not parts:
+        if not any(t in html for t in self.TARGETS):
             return html
 
-        for i, part in enumerate(parts):
-            if not part or part.startswith('<'):
-                continue
-            for t in targets:
-                part = part.replace(t, replacement)
-            parts[i] = part
+        protected = {}
+        counter = 0
 
-        return "".join(parts)
+        def protect(match):
+            nonlocal counter
+            key = f"___EM_DASH_REMOVER_PROTECTED_{counter}___"
+            protected[key] = match.group(0)
+            counter += 1
+            return key
 
-    def test_basic_em_dash_replacement(self):
-        text = "<p>Artificial intelligence—especially large language models—is evolving.</p>"
-        expected = "<p>Artificial intelligence-especially large language models-is evolving.</p>"
-        self.assertEqual(self.replace_rendered_text(text), expected)
+        processed = re.sub(self.PATTERN, protect, html, flags=re.IGNORECASE | re.DOTALL)
 
-    def test_all_html_entities(self):
-        text = "<p>One&mdash;two&#8212;three&#x2014;four&MDASH;five&#x02014;six&#X2014;seven.</p>"
-        expected = "<p>One-two-three-four-five-six-seven.</p>"
-        self.assertEqual(self.replace_rendered_text(text), expected)
+        for t in self.TARGETS:
+            processed = processed.replace(t, self.REPLACEMENT)
 
-    def test_protected_scripts_and_styles(self):
-        text = '<script>const dash = "—";</script><style>.cls::before { content: "—"; }</style><p>Visible—Text</p>'
-        expected = '<script>const dash = "—";</script><style>.cls::before { content: "—"; }</style><p>Visible-Text</p>'
-        self.assertEqual(self.replace_rendered_text(text), expected)
+        if protected:
+            for k, v in protected.items():
+                processed = processed.replace(k, v)
 
-    def test_protected_code_pre_textarea_svg(self):
-        text = (
-            '<pre><code>print("—")</code></pre>'
-            '<textarea>Raw — text</textarea>'
-            '<svg><text>Icon —</text></svg>'
-            '<kbd>Ctrl—C</kbd>'
-            '<div>Replaced — Content</div>'
-        )
-        expected = (
-            '<pre><code>print("—")</code></pre>'
-            '<textarea>Raw — text</textarea>'
-            '<svg><text>Icon —</text></svg>'
-            '<kbd>Ctrl—C</kbd>'
-            '<div>Replaced - Content</div>'
-        )
-        self.assertEqual(self.replace_rendered_text(text), expected)
+        return processed
 
-    def test_html_tag_attributes_preserved(self):
-        text = '<a href="https://example.com/ai—tools" title="Title — Here" data-custom="value—1">Link — Text</a>'
-        expected = '<a href="https://example.com/ai—tools" title="Title — Here" data-custom="value—1">Link - Text</a>'
-        self.assertEqual(self.replace_rendered_text(text), expected)
+    def test_basic_em_and_en_dashes(self):
+        text = "<html><body><p>AI text—has em dash and en dash – in here.</p></body></html>"
+        expected = "<html><body><p>AI text-has em dash and en dash - in here.</p></body></html>"
+        self.assertEqual(self.process_html(text), expected)
 
-    def test_html_comments_preserved(self):
-        text = '<!-- Comment with — dash --><span>Body — text</span>'
-        expected = '<!-- Comment with — dash --><span>Body - text</span>'
-        self.assertEqual(self.replace_rendered_text(text), expected)
+    def test_html_entities(self):
+        text = "<html><body><p>&mdash; and &ndash; and &#8212; and &#8211; and &#x2014; and &#x2013;.</p></body></html>"
+        expected = "<html><body><p>- and - and - and - and - and -.</p></body></html>"
+        self.assertEqual(self.process_html(text), expected)
 
-    def test_empty_and_no_match(self):
-        self.assertEqual(self.replace_rendered_text(""), "")
-        self.assertEqual(self.replace_rendered_text("<p>No dashes here.</p>"), "<p>No dashes here.</p>")
+    def test_protected_tags_and_attributes(self):
+        text = """<!DOCTYPE html><html><body>
+<a href="https://example.com/item—1" title="Title — Here">Link — Text</a>
+<script>var x = "do not touch — or –";</script>
+<style>.cls { content: "—"; }</style>
+<pre><code>console.log("—");</code></pre>
+<textarea>User input — untouched</textarea>
+<svg><text>—</text></svg>
+<!-- Comment with — dash -->
+</body></html>"""
+        expected = """<!DOCTYPE html><html><body>
+<a href="https://example.com/item—1" title="Title — Here">Link - Text</a>
+<script>var x = "do not touch — or –";</script>
+<style>.cls { content: "—"; }</style>
+<pre><code>console.log("—");</code></pre>
+<textarea>User input — untouched</textarea>
+<svg><text>—</text></svg>
+<!-- Comment with — dash -->
+</body></html>"""
+        self.assertEqual(self.process_html(text), expected)
+
+    def test_non_html_skipped(self):
+        raw_json = '{"data": "— value"}'
+        self.assertEqual(self.process_html(raw_json), raw_json)
 
 if __name__ == '__main__':
     unittest.main()

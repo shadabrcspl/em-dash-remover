@@ -1,32 +1,38 @@
 # Em Dash Remover for WordPress
 
-[![WordPress](https://img.shields.io/badge/WordPress-5.0+-21759B.svg?style=flat&logo=wordpress)](https://wordpress.org)
+[![WordPress](https://img.shields.io/badge/WordPress-5.8+-21759B.svg?style=flat&logo=wordpress)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4.svg?style=flat&logo=php)](https://php.net)
+[![Version: 4.1.0](https://img.shields.io/badge/Version-4.1.0-orange.svg)](em-dash-remover.php)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE)
 [![Security: 100% Safe](https://img.shields.io/badge/Security-Audited-brightgreen.svg)](#security--performance)
 
 > **Eliminate telltale AI punctuation on your WordPress site effortlessly.**
-> Automatically replaces AI-generated Em Dashes (`—`, `&mdash;`, `&#8212;`, `&#x2014;`) with natural hyphens (`-`) on runtime, without touching your database, posts, or source files.
+> Automatically replaces AI-generated **Em Dashes (`—`)** and **En Dashes (`–`)** (including HTML entities like `&mdash;`, `&ndash;`, `&#8212;`, `&#8211;`) with clean standard hyphens (`-`) on runtime, without altering your database, posts, or theme files.
 
 ---
 
 ## Why Em Dash Remover?
 
-Modern AI writing tools (ChatGPT, Claude, Gemini, Copilot, etc.) heavily overuse the **Em Dash (`—`)**. Its repetitive appearance is one of the most prominent markers used by readers and AI detection tools to identify AI-generated copy.
+Modern AI writing models (ChatGPT, Claude, Gemini, Copilot) frequently output excessive **Em Dashes (`—`)** and **En Dashes (`–`)**. These are classic signals used by readers and AI detection systems to identify machine-generated text.
 
-**Em Dash Remover** solves this instantly and safely:
-- ⚡ **Zero-touch**: Operates purely on rendered public HTML output.
+**Em Dash Remover** fixes this automatically:
+- ⚡ **Zero-touch**: Runs purely in the public rendered HTML output buffer.
 - 🛡️ **Zero Risk to Database**: Your original post content, Elementor layouts, Gutenberg blocks, and database remain 100% untouched.
-- 🔒 **Code & Layout Safe**: Will never break `<script>`, `<style>`, `<code>`, `<pre>`, `<textarea>`, `<svg>`, or HTML tag attributes (e.g., links, image alts, meta tags).
-- 🚀 **Ultra-lightweight**: Instant execution with fail-safe fast exit if no em dashes exist on the page.
+- 🔒 **Code & Layout Safe**: Never breaks `<script>`, `<style>`, `<code>`, `<pre>`, `<textarea>`, `<svg>`, or HTML tag attributes (`href`, `title`, `alt`, `data-*`).
+- 📊 **Status Dashboard**: Includes a handy overview under **Tools > Em Dash Remover** in your WordPress Admin.
+- 🚀 **Ultra-lightweight**: Fast single-pass tokenization with instant early-exit optimization.
 
 ---
 
 ## Features
 
-- **Comprehensive Entity Support**: Replaces Unicode `—` (U+2014), named HTML entities (`&mdash;`, `&MDASH;`), decimal entities (`&#8212;`), and hex entities (`&#x2014;`).
-- **Full Builder Compatibility**: Works seamlessly with Elementor, Divi, Gutenberg, Beaver Builder, Oxygen, Bricks, and classic themes.
-- **Smart Protection**:
+- **Replaces Both Em & En Dashes**:
+  - `—` (U+2014) & `–` (U+2013)
+  - Named entities: `&mdash;`, `&MDASH;`, `&ndash;`, `&NDASH;`
+  - Decimal entities: `&#8212;`, `&#8211;`
+  - Hex entities: `&#x2014;`, `&#x2013;`, `&#x02014;`, etc.
+- **Full Page Builder Compatibility**: Works seamlessly with Elementor, Divi, Gutenberg, Beaver Builder, Oxygen, Bricks, and classic themes.
+- **Strict Protection**:
   - Scripts and JSON-LD structured data (`<script>`)
   - CSS Stylesheets (`<style>`)
   - Preformatted and Code blocks (`<pre>`, `<code>`, `<kbd>`, `<samp>`, `<var>`)
@@ -47,21 +53,18 @@ Modern AI writing tools (ChatGPT, Claude, Gemini, Copilot, etc.) heavily overuse
 3. Choose the downloaded `.zip` file and click **Install Now**.
 4. Click **Activate Plugin**.
 
-### Option 2: Manual FTP / Git
-1. Clone or upload the `em-dash-remover` folder into your `/wp-content/plugins/` directory:
+### Option 2: Manual / Git
+1. Clone the repository into your `/wp-content/plugins/` folder:
    ```bash
    git clone https://github.com/shadabrcspl/em-dash-remover.git /path/to/wordpress/wp-content/plugins/em-dash-remover
    ```
-2. Navigate to **Plugins** in WordPress Admin and activate **Em Dash Remover**.
+2. Activate **Em Dash Remover** from the WordPress Plugins screen.
 
 ---
 
 ## Developer Filters & Customization
 
-You can customize the behavior via your theme's `functions.php` or a custom snippet plugin.
-
 ### Change the Replacement String
-By default, em dashes are replaced with a single hyphen `-`. You can change it to a spaced hyphen (` - `) or any custom string:
 ```php
 add_filter( 'em_dash_remover_replacement', function( $replacement ) {
     return ' - '; // Replace with spaced hyphen
@@ -71,9 +74,7 @@ add_filter( 'em_dash_remover_replacement', function( $replacement ) {
 ### Add or Modify Target Characters
 ```php
 add_filter( 'em_dash_remover_targets', function( $targets ) {
-    // Add custom characters, e.g., En Dash (–)
-    $targets[] = '–';
-    $targets[] = '&ndash;';
+    $targets[] = '―'; // Add horizontal bar
     return $targets;
 } );
 ```
@@ -81,8 +82,7 @@ add_filter( 'em_dash_remover_targets', function( $targets ) {
 ### Conditionally Disable on Specific Pages
 ```php
 add_filter( 'em_dash_remover_enabled', function( $enabled ) {
-    // Disable on specific post ID or post type
-    if ( is_single( 123 ) || is_singular( 'documentation' ) ) {
+    if ( is_single( 123 ) || is_singular( 'docs' ) ) {
         return false;
     }
     return $enabled;
@@ -93,10 +93,10 @@ add_filter( 'em_dash_remover_enabled', function( $enabled ) {
 
 ## Security & Performance
 
-- **Direct Execution Blocked**: Direct access to PHP files is prevented via `defined('ABSPATH') || exit;`.
-- **Zero Database / Query Impact**: No SQL queries are executed.
-- **Fail-Safe Regex Handling**: In the rare event of a regex backtrack limitation on unusually large documents, the original unmodified HTML is safely returned.
-- **Clean Uninstall**: No leftover database tables, options, or transients.
+- **Direct Script Access Blocked**: Protected via `defined('ABSPATH') || exit;`.
+- **Admin Access Protected**: Status page requires `manage_options` capability.
+- **Zero Database / Query Overhead**: No SQL queries or DB writes.
+- **Single-Pass Parsing**: High performance with minimal memory overhead and zero regex backtracking risk.
 
 ---
 
