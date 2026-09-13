@@ -2,25 +2,26 @@
 
 [![WordPress](https://img.shields.io/badge/WordPress-5.8+-21759B.svg?style=flat&logo=wordpress)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4+-777BB4.svg?style=flat&logo=php)](https://php.net)
-[![Version: 4.1.0](https://img.shields.io/badge/Version-4.1.0-orange.svg)](em-dash-remover.php)
+[![Version: 5.0.0](https://img.shields.io/badge/Version-5.0.0-orange.svg)](em-dash-remover.php)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE)
 [![Security: 100% Safe](https://img.shields.io/badge/Security-Audited-brightgreen.svg)](#security--performance)
 
 > **Eliminate telltale AI punctuation on your WordPress site effortlessly.**
-> Automatically replaces AI-generated **Em Dashes (`—`)** and **En Dashes (`–`)** (including HTML entities like `&mdash;`, `&ndash;`, `&#8212;`, `&#8211;`) with clean standard hyphens (`-`) on runtime, without altering your database, posts, or theme files.
+> Permanently cleans or dynamically replaces AI-generated **Em Dashes (`—`)** and **En Dashes (`–`)** (including HTML entities like `&mdash;`, `&ndash;`, `&#8212;`, `&#8211;`) with standard hyphens (`-`).
 
 ---
 
-## Why Em Dash Remover?
+## ⚡ Two Modes of Operation
 
-Modern AI writing models (ChatGPT, Claude, Gemini, Copilot) frequently output excessive **Em Dashes (`—`)** and **En Dashes (`–`)**. These are classic signals used by readers and AI detection systems to identify machine-generated text.
+### 1. 💾 1-Click Permanent Database Cleaner (Uninstall-Safe)
+- Navigate to **Tools > Em Dash Remover** in your WordPress Admin.
+- Click **"Clean All Content in Database Permanently"**.
+- Automatically scans all Posts, Pages, Titles, Excerpts, and Elementor builder content in safe AJAX batches.
+- **Permanent Effect**: Once processed, all changes are saved directly into your database. **You can safely deactivate or uninstall the plugin, and the clean hyphens will remain permanently!**
 
-**Em Dash Remover** fixes this automatically:
-- ⚡ **Zero-touch**: Runs purely in the public rendered HTML output buffer.
-- 🛡️ **Zero Risk to Database**: Your original post content, Elementor layouts, Gutenberg blocks, and database remain 100% untouched.
-- 🔒 **Code & Layout Safe**: Never breaks `<script>`, `<style>`, `<code>`, `<pre>`, `<textarea>`, `<svg>`, or HTML tag attributes (`href`, `title`, `alt`, `data-*`).
-- 📊 **Status Dashboard**: Includes a handy overview under **Tools > Em Dash Remover** in your WordPress Admin.
-- 🚀 **Ultra-lightweight**: Fast single-pass tokenization with instant early-exit optimization.
+### 2. ⚡ Live Runtime Output Filter
+- Intercepts public frontend HTML on the fly with zero database modification.
+- Acts as a real-time safety net for any newly drafted AI content.
 
 ---
 
@@ -31,72 +32,29 @@ Modern AI writing models (ChatGPT, Claude, Gemini, Copilot) frequently output ex
   - Named entities: `&mdash;`, `&MDASH;`, `&ndash;`, `&NDASH;`
   - Decimal entities: `&#8212;`, `&#8211;`
   - Hex entities: `&#x2014;`, `&#x2013;`, `&#x02014;`, etc.
-- **Full Page Builder Compatibility**: Works seamlessly with Elementor, Divi, Gutenberg, Beaver Builder, Oxygen, Bricks, and classic themes.
-- **Strict Protection**:
-  - Scripts and JSON-LD structured data (`<script>`)
+- **Elementor & Page Builder Safe**: Recursively cleans Elementor widget text without corrupting JSON structures or URLs.
+- **Strict Code & Asset Protection**:
+  - Scripts and JSON-LD (`<script>`)
   - CSS Stylesheets (`<style>`)
-  - Preformatted and Code blocks (`<pre>`, `<code>`, `<kbd>`, `<samp>`, `<var>`)
+  - Code snippets & preformatted text (`<pre>`, `<code>`, `<kbd>`, `<samp>`, `<var>`)
   - Form fields (`<textarea>`)
   - Vector Graphics (`<svg>`)
-  - HTML comments (`<!-- ... -->`)
   - HTML tag attributes (`<a href="...">`, `<img alt="...">`, etc.)
-- **Bypasses Non-HTML Endpoints**: Automatically ignores WP Admin, REST API endpoints, WP-CLI, CRON jobs, AJAX, XML sitemaps, and RSS feeds.
-- **Extensible Hook API**: Filter and customize target patterns, replacement strings, or conditional execution using WordPress filters.
+- **AJAX Batch Engine**: Safely processes sites with hundreds or thousands of pages without PHP timeouts.
 
 ---
 
 ## Installation
 
-### Option 1: Direct Zip Download (Recommended)
-1. Download the latest **[em-dash-remover.zip](https://github.com/shadabrcspl/em-dash-remover/raw/main/dist/em-dash-remover.zip)**.
-2. In your WordPress Admin dashboard, go to **Plugins > Add New > Upload Plugin**.
-3. Choose the downloaded `.zip` file and click **Install Now**.
-4. Click **Activate Plugin**.
+### Step 1: Download & Activate
+1. Download **[em-dash-remover.zip](https://github.com/shadabrcspl/em-dash-remover/raw/main/dist/em-dash-remover.zip)**.
+2. In WordPress Admin, go to **Plugins > Add New > Upload Plugin**, select the `.zip`, and click **Activate**.
 
-### Option 2: Manual / Git
-1. Clone the repository into your `/wp-content/plugins/` folder:
-   ```bash
-   git clone https://github.com/shadabrcspl/em-dash-remover.git /path/to/wordpress/wp-content/plugins/em-dash-remover
-   ```
-2. Activate **Em Dash Remover** from the WordPress Plugins screen.
-
----
-
-## Developer Filters & Customization
-
-### Change the Replacement String
-```php
-add_filter( 'em_dash_remover_replacement', function( $replacement ) {
-    return ' - '; // Replace with spaced hyphen
-} );
-```
-
-### Add or Modify Target Characters
-```php
-add_filter( 'em_dash_remover_targets', function( $targets ) {
-    $targets[] = '―'; // Add horizontal bar
-    return $targets;
-} );
-```
-
-### Conditionally Disable on Specific Pages
-```php
-add_filter( 'em_dash_remover_enabled', function( $enabled ) {
-    if ( is_single( 123 ) || is_singular( 'docs' ) ) {
-        return false;
-    }
-    return $enabled;
-} );
-```
-
----
-
-## Security & Performance
-
-- **Direct Script Access Blocked**: Protected via `defined('ABSPATH') || exit;`.
-- **Admin Access Protected**: Status page requires `manage_options` capability.
-- **Zero Database / Query Overhead**: No SQL queries or DB writes.
-- **Single-Pass Parsing**: High performance with minimal memory overhead and zero regex backtracking risk.
+### Step 2: Run Permanent Clean (Optional)
+1. Go to **Tools > Em Dash Remover**.
+2. Click **"Clean All Content in Database Permanently"**.
+3. Watch the progress bar complete.
+4. Once completed, your database is permanently cleaned! You may keep the plugin active for future content or safely delete it.
 
 ---
 

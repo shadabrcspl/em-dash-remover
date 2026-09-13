@@ -1,34 +1,38 @@
 === Em Dash Remover ===
 Contributors: shadabrcspl, arshadfaraz
-Tags: em dash, en dash, dash, ai content, typography, content cleanup
+Tags: em dash, en dash, dash, database cleaner, content cleanup, ai content
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.1.0
+Stable tag: 5.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatically replaces em dashes (—), en dashes (–), and HTML entities with normal hyphens (-) in rendered public HTML.
+Permanently cleans or dynamically replaces em dashes (—), en dashes (–), and HTML entities with normal hyphens (-). Includes 1-Click Permanent Database Cleaner.
 
 == Features ==
-* Em dash: — & entities (e.g. &mdash;, &#8212;) → -
-* En dash: – & entities (e.g. &ndash;, &#8211;) → -
-* No database modification (100% Safe)
-* No Elementor / builder modification
-* No theme or plugin file modification
-* No URL or HTML attribute modification
-* No script, style, comment, pre, code, textarea, or SVG modification
-* Works automatically on public frontend requests
-* Includes Tools > Em Dash Remover status dashboard
+* 1-Click Permanent Database Cleaner (under Tools > Em Dash Remover)
+* Permanent changes survive plugin deactivation and uninstallation
+* Cleans Posts, Pages, Custom Post Types, Titles, and Excerpts
+* Cleans Elementor / Page Builder JSON data safely
+* Real-time AJAX batch progress bar with live logs
+* Live runtime output filter for ongoing content protection
+* Strictly preserves code blocks (<pre>, <code>), scripts, styles, textareas, SVGs, and HTML attributes
 
-== Important ==
-This plugin changes only the final rendered HTML sent to visitors. Original WordPress database content and posts remain completely unchanged.
+== Installation ==
+
+1. Upload the plugin zip via WordPress Admin > Plugins > Add New > Upload Plugin.
+2. Activate the plugin.
+3. (Optional for Permanent Clean): Go to Tools > Em Dash Remover and click "Clean All Content in Database Permanently".
+4. Once completed, your database content is permanently cleaned! You can keep the plugin active for live protection or safely uninstall it.
 
 == Changelog ==
 
+= 5.0.0 =
+* Added 1-Click Permanent Database Cleaner for Posts, Pages, Titles, Excerpts, and Elementor builder metadata.
+* Added AJAX batch processing engine with live progress bar and statistics.
+* Added support for permanent cleanup that remains intact after plugin uninstallation.
+* Upgraded runtime filter with single-core sanitize_text_nodes architecture.
+
 = 4.1.0 =
-* Added support for both Em Dash (—) and En Dash (–) plus all standard HTML entities.
-* Added Tools > Em Dash Remover admin status dashboard.
-* Added single-pass protected token extraction and fast early-exit checks.
-* Added developer filter hooks (em_dash_remover_replacement, em_dash_remover_targets, em_dash_remover_enabled).
-* Added full compatibility with WordPress 6.x and PHP 8.x.
+* Added En Dash (–) support and Tools status page.
